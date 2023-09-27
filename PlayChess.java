@@ -8,6 +8,8 @@ public class PlayChess {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Scanner sc = new Scanner(System.in);
+		//When you start the chess game, or before you start, you need to let the user
+		//know that you are doing the chess game.
 		Chess.start();
 		
 		String line = sc.nextLine();

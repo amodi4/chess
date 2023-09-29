@@ -57,8 +57,23 @@ public class Chess {
 		
 		/* FOLLOWING LINE IS A PLACEHOLDER TO MAKE COMPILER HAPPY */
 		/* WHEN YOU FILL IN THIS METHOD, YOU NEED TO RETURN A ReturnPlay OBJECT */
+		String[] moveParts = move.split(" ");
+		String source = moveParts[0];
+		String destination = moveParts[1];
+
 		ReturnPlay curr = new ReturnPlay();
 		curr.piecesOnBoard = initialPieces; //ReturnPlay object needs an arraylist of ReturnPieces, so assign it to initialPieces
+
+		for (ReturnPiece piece : curr.piecesOnBoard){
+			if (piece.pieceFile.name().equalsIgnoreCase(source.substring(0, 1)) &&
+            piece.pieceRank == Integer.parseInt(source.substring(1))) {
+            // Update the piece's position to the destination square
+            piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.substring(0, 1));
+            piece.pieceRank = Integer.parseInt(destination.substring(1));
+            break;
+        	}
+		}
+
 		return curr;
 	}
 	

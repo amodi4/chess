@@ -109,7 +109,7 @@ public class Chess {
 	}
 
 
-	private static void addQueens() {
+	public static void addQueens() {
 		ReturnPiece whiteQueen = new ReturnPiece();
 		whiteQueen.pieceType = ReturnPiece.PieceType.WQ;
 		whiteQueen.pieceFile = ReturnPiece.PieceFile.values()[3]; //queen is at d

@@ -35,8 +35,6 @@ class ReturnPlay {
 }
 
 public class Chess {
-
-	
 	
 	enum Player { white, black }
 	
@@ -64,7 +62,7 @@ public class Chess {
 		return curr;
 	}
 	
-	
+
 	/**
 	 * This method should reset the game, and start from scratch.
 	 */
@@ -73,48 +71,60 @@ public class Chess {
 		
 		initialPieces = new ArrayList<>();
 
-		for (int i = 0; i < 8; i++){
-			ReturnPiece whitePawn = new ReturnPiece();
-			whitePawn.pieceType = ReturnPiece.PieceType.WP;
-			whitePawn.pieceFile = ReturnPiece.PieceFile.values()[i]; //pawns stretch across whole row, so a-h
-			whitePawn.pieceRank = 2;
-			initialPieces.add(whitePawn);
+		//Making a separate method for all of the pieces of each type of piece that you add to the initial chess board of pieces.
 
-			ReturnPiece blackPawn = new ReturnPiece();
-			blackPawn.pieceType = ReturnPiece.PieceType.BP;
-			blackPawn.pieceFile = ReturnPiece.PieceFile.values()[i];
-			blackPawn.pieceRank = 7;
-			initialPieces.add(blackPawn);
-		}
+		//Add the pawns.
+		addPawns();
 
-		for (int i = 0; i < 2; i++){
-			ReturnPiece whiteRook = new ReturnPiece();
-			whiteRook.pieceType = ReturnPiece.PieceType.WR;
-			whiteRook.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 0 : 7]; //rook is either at a or h
-			whiteRook.pieceRank = 1;
-			initialPieces.add(whiteRook);
+		//Add the rooks.
+		addRooks();
 
-			ReturnPiece blackRook = new ReturnPiece();
-			blackRook.pieceType = ReturnPiece.PieceType.BR;
-			blackRook.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 0 : 7];
-			blackRook.pieceRank = 8;
-			initialPieces.add(blackRook);
-		}
+		//Add the knights.
+		addKnights();
 
-		for (int i = 0; i < 2; i++){
-			ReturnPiece whiteKnight = new ReturnPiece();
-			whiteKnight.pieceType = ReturnPiece.PieceType.WN;
-			whiteKnight.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 1 : 6]; //knight is either at b or g
-			whiteKnight.pieceRank = 1;
-			initialPieces.add(whiteKnight);
+		//Add the bishops.
+		addBishops();
+		
+		//Add the kings.
+		addKings();
 
-			ReturnPiece blackKnight = new ReturnPiece();
-			blackKnight.pieceType = ReturnPiece.PieceType.BN;
-			blackKnight.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 1 : 6];
-			blackKnight.pieceRank = 8;
-			initialPieces.add(blackKnight);
-		}
+		//Add the queens.
+		addQueens();
 
+	}
+
+
+	private static void addQueens() {
+		ReturnPiece whiteQueen = new ReturnPiece();
+		whiteQueen.pieceType = ReturnPiece.PieceType.WQ;
+		whiteQueen.pieceFile = ReturnPiece.PieceFile.values()[3]; //queen is at d
+		whiteQueen.pieceRank = 1;
+		initialPieces.add(whiteQueen);
+
+		ReturnPiece blackQueen = new ReturnPiece();
+		blackQueen.pieceType = ReturnPiece.PieceType.BQ;
+		blackQueen.pieceFile = ReturnPiece.PieceFile.values()[3];
+		blackQueen.pieceRank = 8;
+		initialPieces.add(blackQueen);
+	}
+
+
+	public static void addKings() {
+		ReturnPiece whiteKing = new ReturnPiece();
+		whiteKing.pieceType = ReturnPiece.PieceType.WK;
+		whiteKing.pieceFile = ReturnPiece.PieceFile.values()[4]; //king is at e
+		whiteKing.pieceRank = 1;
+		initialPieces.add(whiteKing);
+
+		ReturnPiece blackKing = new ReturnPiece();
+		blackKing.pieceType = ReturnPiece.PieceType.BK;
+		blackKing.pieceFile = ReturnPiece.PieceFile.values()[4];
+		blackKing.pieceRank = 8;
+		initialPieces.add(blackKing);
+	}
+
+
+	public static void addBishops() {
 		for (int i = 0; i < 2; i++){
 			ReturnPiece whiteBishop = new ReturnPiece();
 			whiteBishop.pieceType = ReturnPiece.PieceType.WB;
@@ -128,30 +138,53 @@ public class Chess {
 			blackBishop.pieceRank = 8;
 			initialPieces.add(blackBishop);
 		}
-		
-		ReturnPiece whiteKing = new ReturnPiece();
-		whiteKing.pieceType = ReturnPiece.PieceType.WK;
-		whiteKing.pieceFile = ReturnPiece.PieceFile.values()[4]; //king is at e
-		whiteKing.pieceRank = 1;
-		initialPieces.add(whiteKing);
+	}
 
-		ReturnPiece blackKing = new ReturnPiece();
-		blackKing.pieceType = ReturnPiece.PieceType.BK;
-		blackKing.pieceFile = ReturnPiece.PieceFile.values()[4];
-		blackKing.pieceRank = 8;
-		initialPieces.add(blackKing);
+	public static void addKnights() {
+		for (int i = 0; i < 2; i++){
+			ReturnPiece whiteKnight = new ReturnPiece();
+			whiteKnight.pieceType = ReturnPiece.PieceType.WN;
+			whiteKnight.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 1 : 6]; //knight is either at b or g
+			whiteKnight.pieceRank = 1;
+			initialPieces.add(whiteKnight);
 
-		ReturnPiece whiteQueen = new ReturnPiece();
-		whiteQueen.pieceType = ReturnPiece.PieceType.WQ;
-		whiteQueen.pieceFile = ReturnPiece.PieceFile.values()[3]; //queen is at d
-		whiteQueen.pieceRank = 1;
-		initialPieces.add(whiteQueen);
+			ReturnPiece blackKnight = new ReturnPiece();
+			blackKnight.pieceType = ReturnPiece.PieceType.BN;
+			blackKnight.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 1 : 6];
+			blackKnight.pieceRank = 8;
+			initialPieces.add(blackKnight);
+		}
+	}
 
-		ReturnPiece blackQueen = new ReturnPiece();
-		blackQueen.pieceType = ReturnPiece.PieceType.BQ;
-		blackQueen.pieceFile = ReturnPiece.PieceFile.values()[3];
-		blackQueen.pieceRank = 8;
-		initialPieces.add(blackQueen);
+	public static void addPawns(){
+		for (int i = 0; i < 8; i++){
+			ReturnPiece whitePawn = new ReturnPiece();
+			whitePawn.pieceType = ReturnPiece.PieceType.WP;
+			whitePawn.pieceFile = ReturnPiece.PieceFile.values()[i]; //pawns stretch across whole row, so a-h
+			whitePawn.pieceRank = 2;
+			initialPieces.add(whitePawn);
 
+			ReturnPiece blackPawn = new ReturnPiece();
+			blackPawn.pieceType = ReturnPiece.PieceType.BP;
+			blackPawn.pieceFile = ReturnPiece.PieceFile.values()[i];
+			blackPawn.pieceRank = 7;
+			initialPieces.add(blackPawn);
+		}
+	}
+
+	public static void addRooks(){
+		for (int i = 0; i < 2; i++){
+			ReturnPiece whiteRook = new ReturnPiece();
+			whiteRook.pieceType = ReturnPiece.PieceType.WR;
+			whiteRook.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 0 : 7]; //rook is either at a or h
+			whiteRook.pieceRank = 1;
+			initialPieces.add(whiteRook);
+
+			ReturnPiece blackRook = new ReturnPiece();
+			blackRook.pieceType = ReturnPiece.PieceType.BR;
+			blackRook.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 0 : 7];
+			blackRook.pieceRank = 8;
+			initialPieces.add(blackRook);
+		}
 	}
 }

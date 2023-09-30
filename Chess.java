@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class ReturnPiece {
 	static enum PieceType {WP, WR, WN, WB, WQ, WK, 
@@ -49,6 +50,8 @@ public class Chess {
 	 */
 	
 	static ArrayList<ReturnPiece> initialPieces; //created global static arraylist of ReturnPiece, so that it could be accessed from both methods without having to create a Chess object
+	static HashMap<Player, String> playerTurnMap; //HashMap to store the the Player color as a key, and then "W" or "B" as a value, since those are the first characters in a piecetype
+	static Player currentPlayer; // to keep track of which player's turn it is
 
 	public static ReturnPlay play(String move) {
 
@@ -57,7 +60,7 @@ public class Chess {
 		
 		/* FOLLOWING LINE IS A PLACEHOLDER TO MAKE COMPILER HAPPY */
 		/* WHEN YOU FILL IN THIS METHOD, YOU NEED TO RETURN A ReturnPlay OBJECT */
-		String[] moveParts = move.split(" ");
+		String[] moveParts = move.split(" "); //split the move into initial location and end location (source and destination)
 		String source = moveParts[0];
 		String destination = moveParts[1];
 
@@ -66,14 +69,29 @@ public class Chess {
 
 		for (ReturnPiece piece : curr.piecesOnBoard){
 			if (piece.pieceFile.name().equalsIgnoreCase(source.substring(0, 1)) &&
-            piece.pieceRank == Integer.parseInt(source.substring(1))) {
-            // Update the piece's position to the destination square
-            piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.substring(0, 1));
-            piece.pieceRank = Integer.parseInt(destination.substring(1));
-            break;
+            piece.pieceRank == Integer.parseInt(source.substring(1)))  { //this checks if pieceFile and pieceRank of piece being visited match the source of the move
+				
+				//check to see if correct player (white or black) is the one making the move
+				if (!piece.pieceType.name().substring(0, 1).equals(playerTurnMap.get(currentPlayer))){
+					curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+					return curr;
+				}
+				
+				//This is just to test if the pawn class and its isValidMove method works, doesn't apply to any other pieces
+				//eventually will have to implement something to instantiate a class (Pawn, Bishop, Knight, etc) based on the piece at the source
+				Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1));
+				if (!pawn.isValidMove(destination, initialPieces)){
+					curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+					return curr;
+				}
+				// Update the piece's position to the destination square
+				piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.substring(0, 1));
+				piece.pieceRank = Integer.parseInt(destination.substring(1));
+				break;
         	}
 		}
-
+		if (currentPlayer == Player.white) currentPlayer = Player.black;
+		else currentPlayer = Player.white;
 		return curr;
 	}
 	
@@ -105,6 +123,11 @@ public class Chess {
 
 		//Add the queens.
 		addQueens();
+
+		currentPlayer = Player.white; //reset the player turn to white every time a new game starts
+		playerTurnMap = new HashMap<>();
+		playerTurnMap.put(Player.white, "W");
+		playerTurnMap.put(Player.black, "B");
 
 	}
 

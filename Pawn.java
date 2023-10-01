@@ -8,8 +8,11 @@ public class Pawn extends Piece {
     }
 
     public boolean isValidMove(String destination, ArrayList<ReturnPiece> pieces){
-        if (this.rank > 2 && ((Integer.parseInt(destination.substring(1)) - this.rank) > 1)) return false;
-        if ((Integer.parseInt(destination.substring(1)) - this.rank) > 2) return false;
+        int newRank = Integer.parseInt(destination.substring(1));
+        char newFile = destination.charAt(0);
+        if (newFile < 'a' || newFile > 'h' || newRank < 1 || newRank > 8) return false;
+        if (this.rank > 2 && ((newRank- this.rank) > 1)) return false;
+        if ((newRank - this.rank) > 2) return false;
         return true;
     }
 }

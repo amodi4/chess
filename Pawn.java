@@ -15,13 +15,13 @@ public class Pawn extends Piece {
             return false;
         }
         //If the pawn is in one of the middle 4 rows, can only move one space forward ->
-        //Represents second move of pawn
+        //Represents second move of pawn onwards --> white cannot move backwards or more than 2 spaces up, black cannot move backwards or more than 2 spaces down
         else if (this.color.charAt(0) == 'W' && ((this.rank > 2 && ((newRank- this.rank) > 1)) || newRank < this.rank)) return false;
         else if (this.color.charAt(0) == 'B' && ((this.rank < 6 && ((this.rank - newRank) > 1)) || newRank > this.rank)) return false;
         //Pawn's first move -> Can only move one or two tiles forward.
         else if (Math.abs(newRank - this.rank) > 2) return false;
         //Pawn went up and/or moves sideways or not moved at all.
-        else if (newRank == this.rank || (newFile-this.file.charAt(0) > 1)) return false;
+        else if (newRank == this.rank || (newFile-this.file > 1)) return false;
         //Get destination piece.
         ReturnPiece destinationPiece = null; //Have a variable that acts as a reference to the destination piece.
         for(ReturnPiece piece : pieces){
@@ -40,7 +40,7 @@ public class Pawn extends Piece {
         //Otherwise
         else{
             //If the destination is diagonal to the source, you can't move the pawn diagonally at an empty position.
-             if(Math.abs(newRank-this.rank) == 1 && newFile-this.file.charAt(0) > 0) return false;
+             if(Math.abs(newRank-this.rank) == 1 && newFile-this.file > 0) return false;
         }
         return true;
     }
@@ -50,7 +50,7 @@ public class Pawn extends Piece {
         //If both source and destination pieces make a diagonal (destination is one up, one down from source) AND are of different colors
             //Then you can kill.
             int diffInRank = Math.abs(destination.pieceRank-this.rank);
-            int diffInFile = Math.abs(destination.pieceFile.name().charAt(0)-this.file.charAt(0));
+            int diffInFile = Math.abs(destination.pieceFile.name().charAt(0)-this.file);
 
             if(diffInRank == 1 && diffInFile == 1 && destination.pieceType.name().charAt(0) != this.color.charAt(0)){
             //Remove destination piece from the ArrayList

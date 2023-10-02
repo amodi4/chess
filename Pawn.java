@@ -22,14 +22,6 @@ public class Pawn extends Piece {
         else if (Math.abs(newRank - this.rank) > 2) return false;
         //Pawn went up and/or moves sideways or not moved at all.
         else if (newRank == this.rank || (newFile-this.file.charAt(0) > 1)) return false;
-        //Pawn moving backwards
-            //If color is white, then backwards is at least a row below
-            //Else, backwards is the opposite.
-        if(this.color.equals("W")){
-            if(this.rank > newRank) return false;
-        }else{
-            if(this.rank < newRank) return false;
-        }
         //Get destination piece.
         ReturnPiece destinationPiece = null; //Have a variable that acts as a reference to the destination piece.
         for(ReturnPiece piece : pieces){

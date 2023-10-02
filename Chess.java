@@ -58,7 +58,6 @@ public class Chess {
 		/* FILL IN THIS METHOD */
         String[] moveParts = move.split(" "); //split the move into initial location and end location (source and destination)
 		String source = moveParts[0];
-		String destination = moveParts[1];
 
 		ReturnPlay curr = new ReturnPlay();
 		//If there is only one token in the moveParts array, it's a resign move
@@ -69,6 +68,8 @@ public class Chess {
 			else curr.message = ReturnPlay.Message.RESIGN_WHITE_WINS;
 			return curr;
 		}
+		
+		String destination = moveParts[1];
 
 		curr.piecesOnBoard = initialPieces; //ReturnPlay object needs an arraylist of ReturnPieces, so assign it to initialPieces
 
@@ -78,9 +79,13 @@ public class Chess {
 			return curr;
 		}
 
+		boolean foundPiece = false; //Variable that tells if you found the piece of the FileRank pos or not.
+
 		for (ReturnPiece piece : curr.piecesOnBoard){
 			if (piece.pieceFile.name().equalsIgnoreCase(source.substring(0, 1)) &&
             piece.pieceRank == Integer.parseInt(source.substring(1)))  { //this checks if pieceFile and pieceRank of piece being visited match the source of the move
+				//The moment you found the piece, just set foundPiece to be true.
+				foundPiece = true;
 				//check to see if correct player (white or black) is the one making the move
 				if (!piece.pieceType.name().substring(0, 1).equals(playerTurnMap.get(currentPlayer))){
 					curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
@@ -95,24 +100,53 @@ public class Chess {
 						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
 						return curr;
 					}
-					//Continue code for pseudocode here (10/1/2023 -> 6:16 pm)
-					//Update the piece's position to the destination square (This is just for moving the pawn, not killing it.)
-					piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.charAt(0) + "");
-					piece.pieceRank = Integer.parseInt(destination.charAt(1) + "");
-					break;
-
 				} else if(piece.pieceType == ReturnPiece.PieceType.WR || piece.pieceType == ReturnPiece.PieceType.BR){
 					//Create a Rook object
+					Rook rook = new Rook(source, piece.pieceType.name().substring(0, 1));
+					if (!rook.isValidMove(destination, initialPieces)){
+						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+						return curr;
+					}
 				} else if(piece.pieceType == ReturnPiece.PieceType.WN || piece.pieceType == ReturnPiece.PieceType.BN){
 					//Create a Knight object
+					Knight knight = new Knight(source, piece.pieceType.name().substring(0, 1));
+					if (!knight.isValidMove(destination, initialPieces)){
+						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+						return curr;
+					}
 				} else if(piece.pieceType == ReturnPiece.PieceType.WQ || piece.pieceType == ReturnPiece.PieceType.BQ){
 					//Create a Queen object
+					Queen queen = new Queen(source, piece.pieceType.name().substring(0, 1));
+					if (!queen.isValidMove(destination, initialPieces)){
+						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+						return curr;
+					}
 				} else if(piece.pieceType == ReturnPiece.PieceType.WB || piece.pieceType == ReturnPiece.PieceType.BB){
 					//Create a Bishop object
+					Bishop bishop = new Bishop(source, piece.pieceType.name().substring(0, 1));
+					if (!bishop.isValidMove(destination, initialPieces)){
+						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+						return curr;
+					}
 				} else{
 					//Create a King object
+					King king = new King(source, piece.pieceType.name().substring(0, 1));
+					if (!king.isValidMove(destination, initialPieces)){
+						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+						return curr;
+					}
 				}
+				//Update the piece's position to the destination square (This is just for moving the pawn, not killing it.)
+				piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.charAt(0) + "");
+				piece.pieceRank = Integer.parseInt(destination.charAt(1) + "");
+				break;
         	}
+		}
+
+		//If you didn't find the piece, then it's an illegal move, because there is no piece that exists at that source position.
+		if(!foundPiece){
+			curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return curr;
 		}
 
 		//If there are three tokens in the array, then the third token has to be a draw? message after playing the move.

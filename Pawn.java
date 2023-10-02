@@ -16,9 +16,10 @@ public class Pawn extends Piece {
         }
         //If the pawn is in one of the middle 4 rows, can only move one space forward ->
         //Represents second move of pawn
-        else if (this.rank > 2 && ((newRank- this.rank) > 1)) return false;
+        else if (this.color.charAt(0) == 'W' && ((this.rank > 2 && ((newRank- this.rank) > 1)) || newRank < this.rank)) return false;
+        else if (this.color.charAt(0) == 'B' && ((this.rank < 6 && ((this.rank - newRank) > 1)) || newRank > this.rank)) return false;
         //Pawn's first move -> Can only move one or two tiles forward.
-        else if ((newRank - this.rank) > 2) return false;
+        else if (Math.abs(newRank - this.rank) > 2) return false;
         //Pawn went up and/or moves sideways or not moved at all.
         else if (newRank == this.rank || (newFile-this.file.charAt(0) > 1)) return false;
         //Pawn moving backwards
@@ -47,7 +48,7 @@ public class Pawn extends Piece {
         //Otherwise
         else{
             //If the destination is diagonal to the source, you can't move the pawn diagonally at an empty position.
-             if(newRank-this.rank == 1 && newFile-this.file.charAt(0) > 0) return false;
+             if(Math.abs(newRank-this.rank) == 1 && newFile-this.file.charAt(0) > 0) return false;
         }
         return true;
     }

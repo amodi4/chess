@@ -61,35 +61,69 @@ public class Chess {
 		String destination = moveParts[1];
 
 		ReturnPlay curr = new ReturnPlay();
+		//If there is only one token in the moveParts array, it's a resign move
+		if(moveParts.length == 1){
+			//If white resigns, black wins
+			if(currentPlayer == Player.white) curr.message = ReturnPlay.Message.RESIGN_BLACK_WINS;
+			//Otherwise white wins since black resigned.
+			else curr.message = ReturnPlay.Message.RESIGN_WHITE_WINS;
+			return curr;
+		}
+
 		curr.piecesOnBoard = initialPieces; //ReturnPlay object needs an arraylist of ReturnPieces, so assign it to initialPieces
+
+		//If source location is out of bounds.
+		if ((source.charAt(0) < 'a' || source.charAt(0) > 'h') || (source.charAt(1) < '1' || source.charAt(1) > '8')){
+			curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return curr;
+		}
 
 		for (ReturnPiece piece : curr.piecesOnBoard){
 			if (piece.pieceFile.name().equalsIgnoreCase(source.substring(0, 1)) &&
             piece.pieceRank == Integer.parseInt(source.substring(1)))  { //this checks if pieceFile and pieceRank of piece being visited match the source of the move
-				
 				//check to see if correct player (white or black) is the one making the move
 				if (!piece.pieceType.name().substring(0, 1).equals(playerTurnMap.get(currentPlayer))){
 					curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
 					return curr;
 				}
 				
-				//This is just to test if the pawn class and its isValidMove method works, doesn't apply to any other pieces
-				//eventually will have to implement something to instantiate a class (Pawn, Bishop, Knight, etc) based on the piece at the source
-				Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1));
-				if (!pawn.isValidMove(destination, initialPieces)){
-					curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
-					return curr;
+				//Based on the type of the piece, create an instance of the piece type
+				if(piece.pieceType == ReturnPiece.PieceType.WP || piece.pieceType == ReturnPiece.PieceType.BP){
+					//Create a Pawn object
+					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1));
+					if (!pawn.isValidMove(destination, initialPieces)){
+						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+						return curr;
+					}
+					//Continue code for pseudocode here (10/1/2023 -> 6:16 pm)
+					//Update the piece's position to the destination square (This is just for moving the pawn, not killing it.)
+					piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.charAt(0) + "");
+					piece.pieceRank = Integer.parseInt(destination.charAt(1) + "");
+					break;
+
+				} else if(piece.pieceType == ReturnPiece.PieceType.WR || piece.pieceType == ReturnPiece.PieceType.BR){
+					//Create a Rook object
+				} else if(piece.pieceType == ReturnPiece.PieceType.WN || piece.pieceType == ReturnPiece.PieceType.BN){
+					//Create a Knight object
+				} else if(piece.pieceType == ReturnPiece.PieceType.WQ || piece.pieceType == ReturnPiece.PieceType.BQ){
+					//Create a Queen object
+				} else if(piece.pieceType == ReturnPiece.PieceType.WB || piece.pieceType == ReturnPiece.PieceType.BB){
+					//Create a Bishop object
+				} else{
+					//Create a King object
 				}
-				// Update the piece's position to the destination square (This is just for moving the pawn, not killing it.)
-				piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.charAt(0) + "");
-				piece.pieceRank = Integer.parseInt(destination.charAt(1) + "");
-				break;
         	}
 		}
-		
-		//Alternate the player for the next move
-		if (currentPlayer == Player.white) currentPlayer = Player.black;
-		else currentPlayer = Player.white;
+
+		//If there are three tokens in the array, then the third token has to be a draw? message after playing the move.
+			//Just return the ReturnPlay object containing draw message, and the autograder will take care of that.
+		if(moveParts.length == 3){
+			curr.message = ReturnPlay.Message.DRAW;
+		} else{
+			//Alternate the player for the next move (Only executes this is the move is valid)
+			if (currentPlayer == Player.white) currentPlayer = Player.black;
+			else currentPlayer = Player.white;
+		}
 
 		return curr;
 		
@@ -126,8 +160,8 @@ public class Chess {
 		//Add the queens.
 		addQueens();
 
-		currentPlayer = Player.white; //reset the player turn to white every time a new game starts
-		//Populate the HashMap of player's turn at the start of the game for the player to keep track of the pieces
+		currentPlayer = Player.white;
+ 		//Populate the HashMap of player's turn at the start of the game for the player to keep track of the pieces
 		//allowed to move.
 		playerTurnMap = new HashMap<>();
 		playerTurnMap.put(Player.white, "W");

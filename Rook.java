@@ -17,6 +17,30 @@ public class Rook extends Piece {
         //If file changes but not rank or vice versa
         if((Math.abs(newFile - file) > 0 && newRank-rank == 0) || (newFile - file == 0 && Math.abs(newRank-rank) > 0)){
             //It's a valid move so far.
+            //Check for obstacles/pieces that interfere in the path to move source piece to destination.
+            int fileUpdate = Integer.compare(newFile, file);
+            int rankUpdate = Integer.compare(newRank, rank);
+
+            //Counters used to see whether you can move the piece at source along the path to destination.
+            int currentFile = this.file;
+            int currentRank = this.rank;
+            
+            //Keep doing while you reach the destination position.
+            while(currentFile != newFile || currentRank != newRank){
+                //Update the currentFile and rank to reach a new position
+                currentFile += fileUpdate;
+                currentRank += rankUpdate;
+
+                //If you are at the destination position, you reached it.
+                if(currentFile == newFile && currentRank == newRank) break;
+
+                for (ReturnPiece piece : pieces) {
+                    if (piece.pieceFile.name().charAt(0) == currentFile && piece.pieceRank == currentRank) {
+                        //Piece is being jumped over on the path from moving source piece to destination.
+                        return false;
+                    }
+                }
+            }
             //Get destination piece.
             ReturnPiece destinationPiece = null; //Have a variable that acts as a reference to the destination piece.
             for(ReturnPiece piece : pieces){

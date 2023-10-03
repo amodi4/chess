@@ -40,7 +40,7 @@ public class Pawn extends Piece {
         //Otherwise
         else{
             //If the destination is diagonal to the source, you can't move the pawn diagonally at an empty position.
-             if(Math.abs(newRank-this.rank) == 1 && newFile-this.file > 0) return false;
+             if(Math.abs(newRank-this.rank) == 1 && Math.abs(newFile-this.file) > 0) return false;
         }
         return true;
     }

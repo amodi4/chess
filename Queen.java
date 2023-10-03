@@ -21,26 +21,32 @@ public class Queen extends Piece {
         if ((rankDifference > 0 && fileDifference == 0) || (rankDifference == 0 && fileDifference > 0)){
             //moving vertical
             if (rankDifference > 0){
-                int rankChange = this.rank > newRank ? -1 : 1;
+                int rankChange = this.rank > newRank ? -1 : 1; //rankChange is to see if it is moving up or down
+
+                //keep moving Queen by one spot
                 for (int i = this.rank + rankChange; i != newRank; i+=rankChange){
+                    //check to see if any piece exists in path before you reach destination
                     ReturnPiece isObstruction = getPieceAtSquare(this.file, i, pieces);
                     if (isObstruction != null) return false;
                 }
             }
             //moving horizontal
             if (fileDifference > 0){
-                int fileChange = this.file > newFile ? -1 : 1;
+                int fileChange = this.file > newFile ? -1 : 1; //fileChange is to see if it is moving left or right
+                //keep moving Queen by one spot
                 for (char i = (char) (this.file + fileChange); i != newFile; i+=fileChange){
+                    //check to see if any piece exists in path before you reach destination
                     ReturnPiece isObstruction = getPieceAtSquare(i, this.rank, pieces);
                     if (isObstruction != null) return false;
                 }
             }
+            //now you have to be at destination, so check if there is a piece at the destination
             ReturnPiece destinationPiece = getPieceAtSquare(newFile, newRank, pieces);
             if (destinationPiece != null && !destinationPiece.pieceType.name().startsWith(this.color)) {
                 pieces.remove(destinationPiece); // Remove the captured piece
                 return true; // Valid capture move
             }
-            else if (destinationPiece != null && destinationPiece.pieceType.name().startsWith(this.color)) return false;
+            else if (destinationPiece != null && destinationPiece.pieceType.name().startsWith(this.color)) return false; //piece at destination is same color as piece being moved
             return true; // Valid non-capture move
         }
         

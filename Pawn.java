@@ -22,6 +22,8 @@ public class Pawn extends Piece {
         else if (Math.abs(newRank - this.rank) > 2) return false;
         //Pawn went up and/or moves sideways or not moved at all.
         else if (newRank == this.rank || (newFile-this.file > 1)) return false;
+        //Check to see if there are any pieces you will jump over on the path of source piece
+        //moving to destination.
         //Get destination piece.
         ReturnPiece destinationPiece = null; //Have a variable that acts as a reference to the destination piece.
         for(ReturnPiece piece : pieces){
@@ -40,7 +42,7 @@ public class Pawn extends Piece {
         //Otherwise
         else{
             //If the destination is diagonal to the source, you can't move the pawn diagonally at an empty position.
-             if(Math.abs(newRank-this.rank) == 1 && newFile-this.file > 0) return false;
+             if(Math.abs(newRank-this.rank) == 1 && newFile-this.file == 1) return false;
         }
         return true;
     }

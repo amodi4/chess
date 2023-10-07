@@ -24,6 +24,29 @@ public class Pawn extends Piece {
         else if (newRank == this.rank || (newFile-this.file > 1)) return false;
         //Check to see if there are any pieces you will jump over on the path of source piece
         //moving to destination.
+        int fileUpdate = Integer.compare(newFile, file);
+        int rankUpdate = Integer.compare(newRank, rank);
+
+        //Counters used to see whether you can move the piece at source along the path to destination.
+        int currentFile = this.file;
+        int currentRank = this.rank;
+        
+        //Keep doing while you reach the destination position.
+        while(currentFile != newFile || currentRank != newRank){
+            //Update the currentFile and rank to reach a new position
+            currentFile += fileUpdate;
+            currentRank += rankUpdate;
+
+            //If you are at the destination position, you reached it.
+            if(currentFile == newFile && currentRank == newRank) break;
+
+            for (ReturnPiece piece : pieces) {
+                if (piece.pieceFile.name().charAt(0) == currentFile && piece.pieceRank == currentRank) {
+                    //Piece is being jumped over on the path from moving source piece to destination.
+                    return false;
+                }
+            }
+        }
         //Get destination piece.
         ReturnPiece destinationPiece = null; //Have a variable that acts as a reference to the destination piece.
         for(ReturnPiece piece : pieces){

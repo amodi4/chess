@@ -15,7 +15,7 @@ public class Rook extends Piece {
             return false;
         }
         //If file changes but not rank or vice versa
-        if((Math.abs(newFile - file) > 0 && newRank-rank == 0) || (newFile - file == 0 && Math.abs(newRank-rank) > 0)){
+        if((Math.abs(newFile - this.file) > 0 && newRank-this.rank == 0) || (newFile - this.file == 0 && Math.abs(newRank-this.rank) > 0)){
             //It's a valid move so far.
             //Check for obstacles/pieces that interfere in the path to move source piece to destination.
             int fileUpdate = Integer.compare(newFile, file);

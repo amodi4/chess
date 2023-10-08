@@ -60,6 +60,7 @@ public class Chess {
 		String source = moveParts[0];
 
 		ReturnPlay curr = new ReturnPlay();
+		curr.piecesOnBoard = initialPieces; //ReturnPlay object needs an arraylist of ReturnPieces, so assign it to initialPieces
 		//If there is only one token in the moveParts array, it's a resign move
 		if(moveParts.length == 1){
 			//If white resigns, black wins
@@ -70,8 +71,6 @@ public class Chess {
 		}
 		
 		String destination = moveParts[1];
-
-		curr.piecesOnBoard = initialPieces; //ReturnPlay object needs an arraylist of ReturnPieces, so assign it to initialPieces
 
 		//If source location is out of bounds.
 		if ((source.charAt(0) < 'a' || source.charAt(0) > 'h') || (source.charAt(1) < '1' || source.charAt(1) > '8')){

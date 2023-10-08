@@ -61,12 +61,16 @@ public class Chess {
 
 		ReturnPlay curr = new ReturnPlay();
 		curr.piecesOnBoard = initialPieces; //ReturnPlay object needs an arraylist of ReturnPieces, so assign it to initialPieces
-		//If there is only one token in the moveParts array, it's a resign move
+		//If there is only one token in the moveParts array
 		if(moveParts.length == 1){
-			//If white resigns, black wins
-			if(currentPlayer == Player.white) curr.message = ReturnPlay.Message.RESIGN_BLACK_WINS;
-			//Otherwise white wins since black resigned.
-			else curr.message = ReturnPlay.Message.RESIGN_WHITE_WINS;
+			if(source.equals("resign")){
+				//If white resigns, black wins
+				if(currentPlayer == Player.white) curr.message = ReturnPlay.Message.RESIGN_BLACK_WINS;
+				//Otherwise white wins since black resigned.
+				else curr.message = ReturnPlay.Message.RESIGN_WHITE_WINS;
+			}else{ //If the first token iss not resign, then not a valid move
+				curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			}
 			return curr;
 		}
 		

@@ -57,6 +57,14 @@ public class Rook extends Piece {
         return (destinationPiece.pieceType + "").charAt(0) != color.charAt(0);
     }
 
+    /**
+     * Method that checks to see if there are not any pieces you will jump over moving the piece from source to destination.
+     * @param newFile represents the file at destination
+     * @param newRank represents the rank at destination
+     * @param pieces , aka the board used for removing pieces that have been killed.
+     * @return false if there are any obstructions on the board, otherwise true.
+     */
+
     public boolean noObstructions(char newFile, int newRank, ArrayList<ReturnPiece> pieces){
         int fileUpdate = Integer.compare(newFile, file);
         int rankUpdate = Integer.compare(newRank, rank);

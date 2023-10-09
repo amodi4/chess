@@ -17,30 +17,9 @@ public class Rook extends Piece {
         //If file changes but not rank or vice versa
         if((Math.abs(newFile - this.file) > 0 && newRank-this.rank == 0) || (newFile - this.file == 0 && Math.abs(newRank-this.rank) > 0)){
             //It's a valid move so far.
-            //Check for obstacles/pieces that interfere in the path to move source piece to destination.
-            int fileUpdate = Integer.compare(newFile, file);
-            int rankUpdate = Integer.compare(newRank, rank);
-
-            //Counters used to see whether you can move the piece at source along the path to destination.
-            int currentFile = this.file;
-            int currentRank = this.rank;
-            
-            //Keep doing while you reach the destination position.
-            while(currentFile != newFile || currentRank != newRank){
-                //Update the currentFile and rank to reach a new position
-                currentFile += fileUpdate;
-                currentRank += rankUpdate;
-
-                //If you are at the destination position, you reached it.
-                if(currentFile == newFile && currentRank == newRank) break;
-
-                for (ReturnPiece piece : pieces) {
-                    if (piece.pieceFile.name().charAt(0) == currentFile && piece.pieceRank == currentRank) {
-                        //Piece is being jumped over on the path from moving source piece to destination.
-                        return false;
-                    }
-                }
-            }
+            //If there are obstacles/pieces that interfere in the path to move source piece to destination
+            //then that's an obstruction.
+            if(!noObstructions(newFile, newRank, pieces)) return false; 
             //Get destination piece.
             ReturnPiece destinationPiece = null; //Have a variable that acts as a reference to the destination piece.
             for(ReturnPiece piece : pieces){
@@ -76,5 +55,32 @@ public class Rook extends Piece {
     public boolean isCanKill(ReturnPiece destinationPiece){
         //Check to see if destinationPiece color is different than sourcePiece color(Piece that you are trying to move.)
         return (destinationPiece.pieceType + "").charAt(0) != color.charAt(0);
+    }
+
+    public boolean noObstructions(char newFile, int newRank, ArrayList<ReturnPiece> pieces){
+        int fileUpdate = Integer.compare(newFile, file);
+        int rankUpdate = Integer.compare(newRank, rank);
+
+        //Counters used to see whether you can move the piece at source along the path to destination.
+        int currentFile = this.file;
+        int currentRank = this.rank;
+        
+        //Keep doing while you reach the destination position.
+        while(currentFile != newFile || currentRank != newRank){
+            //Update the currentFile and rank to reach a new position
+            currentFile += fileUpdate;
+            currentRank += rankUpdate;
+
+            //If you are at the destination position, you reached it.
+            if(currentFile == newFile && currentRank == newRank) break;
+
+            for (ReturnPiece piece : pieces) {
+                if (piece.pieceFile.name().charAt(0) == currentFile && piece.pieceRank == currentRank) {
+                    //Piece is being jumped over on the path from moving source piece to destination.
+                    return false;
+                }
+            }
+        }
+        return true; //No obstructions at the end.
     }
 }

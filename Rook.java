@@ -6,7 +6,7 @@ public class Rook extends Piece {
     public Rook(String location, String color){
         super(location, color);
     }
-
+    
     public boolean isValidMove(String destination, ArrayList<ReturnPiece> pieces){
         int newRank = Integer.parseInt(destination.substring(1));
         char newFile = destination.charAt(0);

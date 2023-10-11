@@ -64,6 +64,7 @@ public class Pawn extends Piece {
                 //If you can kill, then it's a valid move.
         //Otherwise
         else{
+            System.out.println("Yo");
             //If the destination is diagonal to the source, you can't move the pawn diagonally at an empty position.
              if(Math.abs(newRank-this.rank) == 1 && newFile-this.file == 1) return false;
         }

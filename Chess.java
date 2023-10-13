@@ -73,6 +73,9 @@ public class Chess {
 			}
 			return curr;
 		}
+		//Finding out if player wants to promote a pawn
+		String promotionPiece = "";
+		if (moveParts.length == 3 && !moveParts[2].equals("draw?")) promotionPiece = moveParts[2];
 		
 		String destination = moveParts[1];
 
@@ -98,10 +101,25 @@ public class Chess {
 				//Based on the type of the piece, create an instance of the piece type
 				if(piece.pieceType == ReturnPiece.PieceType.WP || piece.pieceType == ReturnPiece.PieceType.BP){
 					//Create a Pawn object
-					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1));
+					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1), promotionPiece);
 					if (!pawn.isValidMove(destination, initialPieces)){
 						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
 						return curr;
+					}
+					if (pawn.isEligibleForPromotion(destination)){
+						//4 statements below determine what the piece will be converted to--> can be assumed as Queen if promotionPiece string is null
+						if (promotionPiece.equals("N")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
+						else if (promotionPiece.equals("R")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
+						else if (promotionPiece.equals("B")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WB : ReturnPiece.PieceType.BB;
+						else if (promotionPiece.equals("") || promotionPiece.equals("Q")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WQ : ReturnPiece.PieceType.BQ;
+
+						//statements below are just to update the piece's file and rank early, as well as switch player turn and return the board early
+						piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.charAt(0) + "");
+						piece.pieceRank = Integer.parseInt(destination.charAt(1) + "");
+						if (currentPlayer == Player.white) currentPlayer = Player.black;
+						else currentPlayer = Player.white;
+						return curr;
+
 					}
 				} else if(piece.pieceType == ReturnPiece.PieceType.WR || piece.pieceType == ReturnPiece.PieceType.BR){
 					//Create a Rook object
@@ -155,7 +173,7 @@ public class Chess {
 		//If there are three tokens in the array, then the third token has to be a draw? message after playing the move.
 			//Just return the ReturnPlay object containing draw message, and the autograder will take care of that.
 		if(moveParts.length == 3){
-			curr.message = ReturnPlay.Message.DRAW;
+			if (moveParts[2].equals("draw?")) curr.message = ReturnPlay.Message.DRAW;
 		} else{
 			//Alternate the player for the next move (Only executes this is the move is valid)
 			if (currentPlayer == Player.white) currentPlayer = Player.black;

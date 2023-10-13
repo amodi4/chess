@@ -3,8 +3,10 @@ package chess;
 import java.util.ArrayList;
 
 public class Pawn extends Piece {
-    public Pawn(String location, String color){
+    String promotionPiece;
+    public Pawn(String location, String color, String promotionPiece){
         super(location, color);
+        this.promotionPiece = promotionPiece;
     }
 
     public boolean isValidMove(String destination, ArrayList<ReturnPiece> pieces){
@@ -17,7 +19,7 @@ public class Pawn extends Piece {
         //If the pawn is in one of the middle 4 rows, can only move one space forward ->
         //Represents second move of pawn onwards --> white cannot move backwards or more than 2 spaces up, black cannot move backwards or more than 2 spaces down
         else if (this.color.charAt(0) == 'W' && ((this.rank > 2 && ((newRank- this.rank) > 1)) || newRank < this.rank)) return false;
-        else if (this.color.charAt(0) == 'B' && ((this.rank < 6 && ((this.rank - newRank) > 1)) || newRank > this.rank)) return false;
+        else if (this.color.charAt(0) == 'B' && ((this.rank < 7 && ((this.rank - newRank) > 1)) || newRank > this.rank)) return false;
         //Pawn's first move -> Can only move one or two tiles forward.
         else if (Math.abs(newRank - this.rank) > 2) return false;
         //Pawn went up and/or moves sideways or not moved at all.
@@ -85,5 +87,11 @@ public class Pawn extends Piece {
         }
         //Otherwise you can't.
         return false;
+    }
+
+    public boolean isEligibleForPromotion(String destination){
+        int newRank = Integer.parseInt(destination.substring(1));
+        if ((this.color.charAt(0) == 'W' && newRank == 8) || (this.color.charAt(0) == 'B' && newRank == 1)) return true;
+        else return false;
     }
 }

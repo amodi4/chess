@@ -19,7 +19,7 @@ public class Pawn extends Piece {
         else if (this.color.charAt(0) == 'W' && ((this.rank > 2 && ((newRank- this.rank) > 1)) || newRank < this.rank)) return false;
         else if (this.color.charAt(0) == 'B' && ((this.rank < 6 && ((this.rank - newRank) > 1)) || newRank > this.rank)) return false;
         //Pawn's first move -> Can only move one or two tiles forward.
-        else if (Math.abs(newRank - this.rank) > 2) return false;
+        else if (Math.abs(newRank - this.rank) > 2 || Math.abs(newFile - this.file) > 0) return false;
         //Pawn went up and/or moves sideways or not moved at all.
         else if (newRank == this.rank || (newFile-this.file > 1)) return false;
         //Check to see if there are any pieces you will jump over on the path of source piece
@@ -66,7 +66,7 @@ public class Pawn extends Piece {
         else{
             System.out.println("Yo");
             //If the destination is diagonal to the source, you can't move the pawn diagonally at an empty position.
-             if(Math.abs(newRank-this.rank) == 1 && newFile-this.file == 1) return false;
+             if(Math.abs(newRank-this.rank) == 1 && Math.abs(newFile-this.file) == 1) return false;
         }
         return true;
     }

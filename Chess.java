@@ -52,6 +52,7 @@ public class Chess {
 	static ArrayList<ReturnPiece> initialPieces; //created global static arraylist of ReturnPiece, so that it could be accessed from both methods without having to create a Chess object
 	static HashMap<Player, String> playerTurnMap; //HashMap to store the the Player color as a key, and then "W" or "B" as a value, since those are the first characters in a piecetype of White or Black's pieces
 	static Player currentPlayer; // to keep track of which player's turn it is
+	static HashMap<ReturnPiece, Integer> piecesMoves; //Used to store the Piece as the key and the number of moves made by the piece used for castling
 
 	public static ReturnPlay play(String move) {
 
@@ -73,6 +74,9 @@ public class Chess {
 			}
 			return curr;
 		}
+		//Finding out if player wants to promote a pawn
+		String promotionPiece = "";
+		if (moveParts.length == 3 && !moveParts[2].equals("draw?")) promotionPiece = moveParts[2];
 		
 		String destination = moveParts[1];
 
@@ -98,10 +102,17 @@ public class Chess {
 				//Based on the type of the piece, create an instance of the piece type
 				if(piece.pieceType == ReturnPiece.PieceType.WP || piece.pieceType == ReturnPiece.PieceType.BP){
 					//Create a Pawn object
-					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1));
+					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1), promotionPiece);
 					if (!pawn.isValidMove(destination, initialPieces)){
 						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
 						return curr;
+					}
+					if (pawn.isEligibleForPromotion(destination)){
+						//4 statements below determine what the piece will be converted to--> can be assumed as Queen if promotionPiece string is null
+						if (promotionPiece.equals("N")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
+						else if (promotionPiece.equals("R")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
+						else if (promotionPiece.equals("B")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WB : ReturnPiece.PieceType.BB;
+						else if (promotionPiece.equals("") || promotionPiece.equals("Q")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WQ : ReturnPiece.PieceType.BQ;
 					}
 				} else if(piece.pieceType == ReturnPiece.PieceType.WR || piece.pieceType == ReturnPiece.PieceType.BR){
 					//Create a Rook object
@@ -133,15 +144,19 @@ public class Chess {
 					}
 				} else{
 					//Create a King object
-					King king = new King(source, piece.pieceType.name().substring(0, 1));
+					King king = new King(source, piece.pieceType.name().substring(0, 1), piecesMoves.get(piece));
+					King.piecesMoves = piecesMoves; //Set the piecesMoves variable in King to see if the king and rook in isValidMove() in King has moved 0 times.
+					king.setRp(piece);
 					if (!king.isValidMove(destination, initialPieces)){
 						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
 						return curr;
 					}
+					if(king.isCastle() == true) break;
 				}
 				//Update the piece's position to the destination square (This is just for moving the pawn, not killing it.)
 				piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.charAt(0) + "");
 				piece.pieceRank = Integer.parseInt(destination.charAt(1) + "");
+				piecesMoves.replace(piece, piecesMoves.get(piece) + 1); //Add the number of moves for that piece by 1.
 				break;
         	}
 		}
@@ -155,7 +170,7 @@ public class Chess {
 		//If there are three tokens in the array, then the third token has to be a draw? message after playing the move.
 			//Just return the ReturnPlay object containing draw message, and the autograder will take care of that.
 		if(moveParts.length == 3){
-			curr.message = ReturnPlay.Message.DRAW;
+			if (moveParts[2].equals("draw?")) curr.message = ReturnPlay.Message.DRAW;
 		} else{
 			//Alternate the player for the next move (Only executes this is the move is valid)
 			if (currentPlayer == Player.white) currentPlayer = Player.black;
@@ -176,6 +191,7 @@ public class Chess {
 		/* FILL IN THIS METHOD */
 		
 		initialPieces = new ArrayList<>();
+		piecesMoves = new HashMap<>();
 
 		//Making a separate method for all of the pieces of each type of piece that you add to the initial chess board of pieces.
 
@@ -212,12 +228,15 @@ public class Chess {
 		whiteQueen.pieceFile = ReturnPiece.PieceFile.values()[3]; //queen is at d
 		whiteQueen.pieceRank = 1;
 		initialPieces.add(whiteQueen);
+		//We add the piece with the number of moves made to 0.
+		piecesMoves.put(whiteQueen, 0);
 
 		ReturnPiece blackQueen = new ReturnPiece();
 		blackQueen.pieceType = ReturnPiece.PieceType.BQ;
 		blackQueen.pieceFile = ReturnPiece.PieceFile.values()[3];
 		blackQueen.pieceRank = 8;
 		initialPieces.add(blackQueen);
+		piecesMoves.put(blackQueen, 0);
 	}
 
 
@@ -227,12 +246,14 @@ public class Chess {
 		whiteKing.pieceFile = ReturnPiece.PieceFile.values()[4]; //king is at e
 		whiteKing.pieceRank = 1;
 		initialPieces.add(whiteKing);
+		piecesMoves.put(whiteKing, 0);
 
 		ReturnPiece blackKing = new ReturnPiece();
 		blackKing.pieceType = ReturnPiece.PieceType.BK;
 		blackKing.pieceFile = ReturnPiece.PieceFile.values()[4];
 		blackKing.pieceRank = 8;
 		initialPieces.add(blackKing);
+		piecesMoves.put(blackKing, 0);
 	}
 
 
@@ -243,12 +264,14 @@ public class Chess {
 			whiteBishop.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 2 : 5]; //bishop is either at c or f
 			whiteBishop.pieceRank = 1;
 			initialPieces.add(whiteBishop);
+			piecesMoves.put(whiteBishop, 0);
 
 			ReturnPiece blackBishop = new ReturnPiece();
 			blackBishop.pieceType = ReturnPiece.PieceType.BB;
 			blackBishop.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 2 : 5];
 			blackBishop.pieceRank = 8;
 			initialPieces.add(blackBishop);
+			piecesMoves.put(blackBishop, 0);
 		}
 	}
 
@@ -259,12 +282,14 @@ public class Chess {
 			whiteKnight.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 1 : 6]; //knight is either at b or g
 			whiteKnight.pieceRank = 1;
 			initialPieces.add(whiteKnight);
+			piecesMoves.put(whiteKnight, 0);
 
 			ReturnPiece blackKnight = new ReturnPiece();
 			blackKnight.pieceType = ReturnPiece.PieceType.BN;
 			blackKnight.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 1 : 6];
 			blackKnight.pieceRank = 8;
 			initialPieces.add(blackKnight);
+			piecesMoves.put(blackKnight, 0);
 		}
 	}
 
@@ -275,12 +300,14 @@ public class Chess {
 			whitePawn.pieceFile = ReturnPiece.PieceFile.values()[i]; //pawns stretch across whole row, so a-h
 			whitePawn.pieceRank = 2;
 			initialPieces.add(whitePawn);
+			piecesMoves.put(whitePawn, 0);
 
 			ReturnPiece blackPawn = new ReturnPiece();
 			blackPawn.pieceType = ReturnPiece.PieceType.BP;
 			blackPawn.pieceFile = ReturnPiece.PieceFile.values()[i];
 			blackPawn.pieceRank = 7;
 			initialPieces.add(blackPawn);
+			piecesMoves.put(blackPawn, 0);
 		}
 	}
 
@@ -291,12 +318,14 @@ public class Chess {
 			whiteRook.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 0 : 7]; //rook is either at a or h
 			whiteRook.pieceRank = 1;
 			initialPieces.add(whiteRook);
+			piecesMoves.put(whiteRook, 0);
 
 			ReturnPiece blackRook = new ReturnPiece();
 			blackRook.pieceType = ReturnPiece.PieceType.BR;
 			blackRook.pieceFile = ReturnPiece.PieceFile.values()[i == 0 ? 0 : 7];
 			blackRook.pieceRank = 8;
 			initialPieces.add(blackRook);
+			piecesMoves.put(blackRook, 0);
 		}
 	}
 }

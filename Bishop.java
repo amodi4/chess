@@ -32,7 +32,7 @@ public class Bishop extends Piece {
                 if (piece.pieceFile.name().charAt(0) == currFile && piece.pieceRank == currRank) {
                     // If the destination square is occupied by an opponent's piece, eliminate it
                     if (!piece.pieceType.name().startsWith(this.color) && currFile == newFile) {
-                        pieces.remove(piece);
+                        //pieces.remove(piece);
                         break;
                     }
                     // If there's any piece in the path and it is not in the destination square, the move is not valid (either piece is same color, or desired destination comes after piece)

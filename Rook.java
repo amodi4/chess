@@ -35,7 +35,7 @@ public class Rook extends Piece {
                 //If you can kill
                 if(isCanKill(destinationPiece)){
                     //Just remove the destination piece from the arraylist
-                    pieces.remove(destinationPiece);
+                    //pieces.remove(destinationPiece);
                     return true;
                 }
                 //Otherwise, you can't kill your own piece, that is an illegal move

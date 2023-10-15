@@ -3,16 +3,19 @@ package chess;
 import java.util.ArrayList;
 
 public class Pawn extends Piece {
-    String promotionPiece;
+    //String promotionPiece;
     boolean[] enpassantSide;
     private ReturnPiece possiblePassant; //Piece that is a possible passant, honestly it is the current piece.
     private static ReturnPiece actualPasssant = null; //Piece to use to keep track of which one to enpassant.
 
-    public Pawn(String location, String color, String promotionPiece, boolean[] enpassantSide){
+    public Pawn(String location, String color, boolean[] enpassantSide){
         super(location, color);
-        this.promotionPiece = promotionPiece;
+        //this.promotionPiece = promotionPiece;
         this.enpassantSide = enpassantSide; //Sets the boolean array of two sides.
     }
+    /*public Pawn(String location, String color){
+        super(location, color);
+    }*/
 
     public static ReturnPiece getActualPasssant() {
         return actualPasssant;
@@ -152,7 +155,7 @@ public class Pawn extends Piece {
 
             if(diffInRank == 1 && diffInFile == 1 && destination.pieceType.name().charAt(0) != this.color.charAt(0)){
             //Remove destination piece from the ArrayList
-            boardPieces.remove(destination);
+            //boardPieces.remove(destination);
             //Return true to allow the piece to move at that position.
             return true;
         }

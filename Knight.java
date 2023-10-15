@@ -24,7 +24,7 @@ public class Knight extends Piece{
                 if (piece.pieceFile.name().charAt(0) == newFile && piece.pieceRank == newRank) {
                     // If the destination square is occupied by an opponent's piece, eliminate it
                     if (!piece.pieceType.name().startsWith(this.color)) {
-                        pieces.remove(piece);
+                        //pieces.remove(piece);
                         break;
                     }
                 }

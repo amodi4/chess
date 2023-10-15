@@ -105,7 +105,7 @@ public class Chess {
 				//Based on the type of the piece, create an instance of the piece type
 				if(piece.pieceType == ReturnPiece.PieceType.WP || piece.pieceType == ReturnPiece.PieceType.BP){
 					//Create a Pawn object
-					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1), promotionPiece, enpassantSide);
+					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1), enpassantSide);
 					pawn.setActualPiece(piece);
 
 					//Reset enpassantAbility for current Player to be false
@@ -163,9 +163,27 @@ public class Chess {
 					}
 					if(king.isCastle() == true) break;
 				}
-				//Update the piece's position to the destination square (This is just for moving the pawn, not killing it.)
+				//find the piece, if any, that exists at destination. Other classes already do this, but this is done so that piece can be potentially added back if own king is in check after move
+				ReturnPiece pieceAtDestination = getPieceAtSquare(destination, initialPieces);
+				if (pieceAtDestination != null) initialPieces.remove(pieceAtDestination); //better to remove pieces in this method rather than in other classes, in case a piece has to be added back
+				//Update the piece's position to the destination square 
 				piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.charAt(0) + "");
 				piece.pieceRank = Integer.parseInt(destination.charAt(1) + "");
+				
+
+				//checking if own king is in check, if not then revert piece back to original spot, and potentially add back previously removed piece
+				if (isOwnKingInCheck(initialPieces)){
+					piece.pieceFile = ReturnPiece.PieceFile.valueOf(source.substring(0, 1));
+					piece.pieceRank = Integer.parseInt(source.substring(1));
+					if (pieceAtDestination!= null) initialPieces.add(pieceAtDestination);
+					curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
+					return curr;
+				}
+
+				//checking if opponent king is in check once current move is made, so CHECK message can be displayed
+				if (isOpponentKingInCheck(initialPieces)) curr.message = ReturnPlay.Message.CHECK;
+				
+
 				piecesMoves.replace(piece, piecesMoves.get(piece) + 1); //Add the number of moves for that piece by 1.
 				break;
         	}
@@ -338,5 +356,168 @@ public class Chess {
 			initialPieces.add(blackRook);
 			piecesMoves.put(blackRook, 0);
 		}
+	}
+
+	//method to see if current player's king is in check after current player makes a certain move
+	public static boolean isOwnKingInCheck(ArrayList<ReturnPiece> pieces){
+		String ownKingDestination = "";
+		//traverse through board to find king of current player
+		for (ReturnPiece piece : pieces){
+			if (piece.pieceType.name().substring(0, 1).equals(playerTurnMap.get(currentPlayer)) && piece.pieceType.name().substring(1).equals("K")){
+				ownKingDestination += piece.pieceFile.toString();
+				ownKingDestination += Integer.toString(piece.pieceRank);
+			}
+		}
+		//if current player is black, then try to find any white pieces that put black king in check
+		if (playerTurnMap.get(currentPlayer).equals("B")){
+			for (ReturnPiece piece : pieces){
+				String sourceOfPiece = "";
+				sourceOfPiece += piece.pieceFile.toString();
+				sourceOfPiece += Integer.toString(piece.pieceRank);
+				if (piece.pieceType == ReturnPiece.PieceType.WN){
+					Knight knight = new Knight(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (knight.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WB){
+					Bishop bishop = new Bishop(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (bishop.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WR){
+					Rook rook = new Rook(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (rook.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WP){
+					Pawn pawn = new Pawn(sourceOfPiece, piece.pieceType.name().substring(0, 1), enpassantSide);
+					if (pawn.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WQ){
+					Queen queen = new Queen(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (queen.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WK){
+					King king = new King(sourceOfPiece, piece.pieceType.name().substring(0, 1), piecesMoves.get(piece));
+					if (king.isValidMove(ownKingDestination, pieces)) return true;
+				}
+			}
+		}
+		//else if current player is white, then try to find black pieces that put white king in check, but otherwise same implementation
+		else{
+			for (ReturnPiece piece : pieces){
+				String sourceOfPiece = "";
+				sourceOfPiece += piece.pieceFile.toString();
+				sourceOfPiece += Integer.toString(piece.pieceRank);
+				if (piece.pieceType == ReturnPiece.PieceType.BN){
+					Knight knight = new Knight(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (knight.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BB){
+					Bishop bishop = new Bishop(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (bishop.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BR){
+					Rook rook = new Rook(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (rook.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BP){
+					Pawn pawn = new Pawn(sourceOfPiece, piece.pieceType.name().substring(0, 1), enpassantSide);
+					if (pawn.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BQ){
+					Queen queen = new Queen(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (queen.isValidMove(ownKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BK){
+					King king = new King(sourceOfPiece, piece.pieceType.name().substring(0, 1), piecesMoves.get(piece));
+					if (king.isValidMove(ownKingDestination, pieces)) return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	//method to see if opponent's king is in check after current player makes a move
+	public static boolean isOpponentKingInCheck(ArrayList<ReturnPiece> pieces){
+		String opponentKingDestination = "";
+		//traverse through board to find opponent's king's square
+		for (ReturnPiece piece : pieces){
+			if (!piece.pieceType.name().substring(0, 1).equals(playerTurnMap.get(currentPlayer)) && piece.pieceType.name().substring(1).equals("K")){
+				opponentKingDestination += piece.pieceFile.toString();
+				opponentKingDestination += Integer.toString(piece.pieceRank);
+			}
+		}
+
+		//if current player is white, then see if any white pieces put the opposing king in check
+		if (playerTurnMap.get(currentPlayer).equals("W")){
+			for (ReturnPiece piece : pieces){
+				String sourceOfPiece = "";
+				sourceOfPiece += piece.pieceFile.toString();
+				sourceOfPiece += Integer.toString(piece.pieceRank);
+				if (piece.pieceType == ReturnPiece.PieceType.WN){
+					Knight knight = new Knight(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (knight.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WB){
+					Bishop bishop = new Bishop(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (bishop.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WR){
+					Rook rook = new Rook(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (rook.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WP){
+					Pawn pawn = new Pawn(sourceOfPiece, piece.pieceType.name().substring(0, 1), enpassantSide);
+					if (pawn.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WQ){
+					Queen queen = new Queen(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (queen.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.WK){
+					King king = new King(sourceOfPiece, piece.pieceType.name().substring(0, 1), piecesMoves.get(piece));
+					if (king.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+			}
+		}
+		//else if current player is black, find any black pieces that put white king in check
+		else{
+			for (ReturnPiece piece : pieces){
+				String sourceOfPiece = "";
+				sourceOfPiece += piece.pieceFile.toString();
+				sourceOfPiece += Integer.toString(piece.pieceRank);
+				if (piece.pieceType == ReturnPiece.PieceType.BN){
+					Knight knight = new Knight(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (knight.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BB){
+					Bishop bishop = new Bishop(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (bishop.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BR){
+					Rook rook = new Rook(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (rook.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BP){
+					Pawn pawn = new Pawn(sourceOfPiece, piece.pieceType.name().substring(0, 1), enpassantSide);
+					if (pawn.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BQ){
+					Queen queen = new Queen(sourceOfPiece, piece.pieceType.name().substring(0, 1));
+					if (queen.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+				else if (piece.pieceType == ReturnPiece.PieceType.BK){
+					King king = new King(sourceOfPiece, piece.pieceType.name().substring(0, 1), piecesMoves.get(piece));
+					if (king.isValidMove(opponentKingDestination, pieces)) return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static ReturnPiece getPieceAtSquare(String destination, ArrayList<ReturnPiece> pieces){
+		for (ReturnPiece piece : pieces){
+			if (piece.pieceFile.name().equalsIgnoreCase(destination.substring(0, 1)) &&
+            piece.pieceRank == Integer.parseInt(destination.substring(1))) return piece;
+		}
+		return null;
 	}
 }

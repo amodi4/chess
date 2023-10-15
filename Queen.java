@@ -43,7 +43,7 @@ public class Queen extends Piece {
             //now you have to be at destination, so check if there is a piece at the destination
             ReturnPiece destinationPiece = getPieceAtSquare(newFile, newRank, pieces);
             if (destinationPiece != null && !destinationPiece.pieceType.name().startsWith(this.color)) {
-                pieces.remove(destinationPiece); // Remove the captured piece
+                //pieces.remove(destinationPiece); // Remove the captured piece
                 return true; // Valid capture move
             }
             else if (destinationPiece != null && destinationPiece.pieceType.name().startsWith(this.color)) return false; //piece at destination is same color as piece being moved
@@ -66,7 +66,7 @@ public class Queen extends Piece {
                     if (piece.pieceFile.name().charAt(0) == currFile && piece.pieceRank == currRank) {
                         // If the destination square is occupied by an opponent's piece, eliminate it
                         if (!piece.pieceType.name().startsWith(this.color) && currFile == newFile) {
-                            pieces.remove(piece);
+                            //pieces.remove(piece);
                             break;
                         }
                         // If there's any piece in the path and it is not in the destination square, the move is not valid (either piece is same color, or desired destination comes after piece)

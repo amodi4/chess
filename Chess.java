@@ -54,9 +54,12 @@ public class Chess {
 	static Player currentPlayer; // to keep track of which player's turn it is
 	static HashMap<ReturnPiece, Integer> piecesMoves; //Used to store the Piece as the key and the number of moves made by the piece used for castling
 
+	static boolean[] enpassantSide; //Array that checks to see if you can perform enpassant on the pawns in a side.
+
 	public static ReturnPlay play(String move) {
 
 		/* FILL IN THIS METHOD */
+
         String[] moveParts = move.split(" "); //split the move into initial location and end location (source and destination)
 		String source = moveParts[0];
 
@@ -102,11 +105,18 @@ public class Chess {
 				//Based on the type of the piece, create an instance of the piece type
 				if(piece.pieceType == ReturnPiece.PieceType.WP || piece.pieceType == ReturnPiece.PieceType.BP){
 					//Create a Pawn object
-					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1), promotionPiece);
+					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1), promotionPiece, enpassantSide);
+					pawn.setActualPiece(piece);
+
+					//Reset enpassantAbility for current Player to be false
+					if(currentPlayer == Chess.Player.white) enpassantSide[0] = false;
+					else enpassantSide[1] = false;
+
 					if (!pawn.isValidMove(destination, initialPieces)){
 						curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
 						return curr;
 					}
+					
 					if (pawn.isEligibleForPromotion(destination)){
 						//4 statements below determine what the piece will be converted to--> can be assumed as Queen if promotionPiece string is null
 						if (promotionPiece.equals("N")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
@@ -219,6 +229,7 @@ public class Chess {
 		playerTurnMap = new HashMap<>();
 		playerTurnMap.put(Player.white, "W");
 		playerTurnMap.put(Player.black, "B");
+		enpassantSide = new boolean[2]; //Two sides -> White and black
 	}
 
 

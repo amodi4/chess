@@ -4,9 +4,26 @@ import java.util.ArrayList;
 
 public class Pawn extends Piece {
     String promotionPiece;
-    public Pawn(String location, String color, String promotionPiece){
+    boolean[] enpassantSide;
+    private ReturnPiece possiblePassant; //Piece that is a possible passant, honestly it is the current piece.
+    private static ReturnPiece actualPasssant = null; //Piece to use to keep track of which one to enpassant.
+
+    public Pawn(String location, String color, String promotionPiece, boolean[] enpassantSide){
         super(location, color);
         this.promotionPiece = promotionPiece;
+        this.enpassantSide = enpassantSide; //Sets the boolean array of two sides.
+    }
+
+    public static ReturnPiece getActualPasssant() {
+        return actualPasssant;
+    }
+
+    public static void setActualPasssant(ReturnPiece actualPasssant) {
+        Pawn.actualPasssant = actualPasssant;
+    }
+
+    public void setActualPiece(ReturnPiece actualPiece) {
+        this.possiblePassant = actualPiece;
     }
 
     public boolean isValidMove(String destination, ArrayList<ReturnPiece> pieces){
@@ -49,6 +66,71 @@ public class Pawn extends Piece {
                 }
             }
         }
+        ReturnPiece destinationPiece = getDestinationPiece(pieces, newRank, newFile);
+        //If the destinationPiece is not null, that means it exists in the Chess board
+        if(destinationPiece != null){
+            //Call the isCanKill() method to figure out whether you can kill.
+            return isCanKill(destinationPiece, pieces);
+        }
+                //If you can kill, then it's a valid move.
+        //Otherwise
+        else{
+            //Enpassant logic
+            //If pawn had been moved two pieces forward
+            if((this.color.equals("B") && newRank-this.rank == -2) || (this.color.equals("W") && newRank-this.rank == 2)){
+                //Set the enpassant for the currentPlayer's color to be true.
+                if(this.color.equals("B")) enpassantSide[1] = true;
+                else enpassantSide[0] = true;
+                actualPasssant = possiblePassant; //This pawn represents the actual pawn the opponent can perform enpassant on.
+                return true;
+            }else{
+                //If you moved the pawn one tile forward, then that's fine.
+                if(((this.color.equals("B") && newRank-this.rank == -1) || (this.color.equals("W") && newRank-this.rank == 1)) && this.file == newFile) {
+                    actualPasssant = null; //Current player didnt' use their pawn to take down the opponent's pawn through enpassant, so hence you missed the opportunity to enpassant.
+                    return true;
+                }
+                if(newFile == this.file && newRank == this.rank) return false; //If you haven't moved the piece at all, then that's not a valid move.
+            }
+            //Check to see if the other side of enpassant is true or not so that we
+            //can perform enpassant on the other side's pawn that is eligible for enpassant.
+
+            if (this.color.equals("W")) {
+                if (enpassantSide[1] == true) {
+                    if (isValidEnpassant()) {
+                        pieces.remove(actualPasssant);
+                        actualPasssant = null;
+                        return true;
+                    }
+                }
+            } else {
+                if (enpassantSide[0] == true) {
+                    if (isValidEnpassant()) {
+                        pieces.remove(actualPasssant);
+                        actualPasssant = null;
+                        return true;
+                    }
+                }
+            }
+
+            //If the destination is diagonal to the source and enpassant is not valid, you can't move the pawn diagonally at an empty position.
+             if(Math.abs(newRank-this.rank) == 1 && Math.abs(newFile-this.file) == 1) {
+                return false;
+             }
+        }
+        return true;
+    }
+    /**
+     * Method that checks to see if the move is a valid enpassant move.
+     * @return true if it's a valid enpassant move, and false if it's not.
+     */
+    public boolean isValidEnpassant() {
+        return Math.abs(actualPasssant.pieceFile.name().charAt(0) - this.file) == 1
+            && actualPasssant.pieceRank == this.rank
+            && !actualPasssant.pieceType.name().substring(0, 1).equals(this.color);
+    }
+    
+
+    private ReturnPiece getDestinationPiece(ArrayList<ReturnPiece> pieces, int newRank, char newFile) {
         //Get destination piece.
         ReturnPiece destinationPiece = null; //Have a variable that acts as a reference to the destination piece.
         for(ReturnPiece piece : pieces){
@@ -58,18 +140,7 @@ public class Pawn extends Piece {
                 destinationPiece = piece;
             }
         }
-        //If the destinationPiece is not null, that means it exists in the Chess board
-        if(destinationPiece != null){
-            //Call the isCanKill() method to figure out whether you can kill.
-            return isCanKill(destinationPiece, pieces);
-        }
-                //If you can kill, then it's a valid move.
-        //Otherwise
-        else{
-            //If the destination is diagonal to the source, you can't move the pawn diagonally at an empty position.
-             if(Math.abs(newRank-this.rank) >= 1 && Math.abs(newFile-this.file) >= 1) return false;
-        }
-        return true;
+        return destinationPiece;
     }
 
     //Method that takes in a destination piece and figures out whether you can kill that piece or not.
@@ -89,6 +160,12 @@ public class Pawn extends Piece {
         return false;
     }
 
+    /**
+     * Checks to see if the pawn is eligible for promotion only if the destination piece that pawn is moving at
+     * is in the first (if pawn is black) or last row (if pawn is white).
+     * @param destination represents the destination to move pawn at.
+     * @return true if the pawn is eligible for pawn promotion, false if not
+     */
     public boolean isEligibleForPromotion(String destination){
         int newRank = Integer.parseInt(destination.substring(1));
         if ((this.color.charAt(0) == 'W' && newRank == 8) || (this.color.charAt(0) == 'B' && newRank == 1)) return true;

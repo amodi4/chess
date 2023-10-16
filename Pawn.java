@@ -100,16 +100,12 @@ public class Pawn extends Piece {
             if (this.color.equals("W")) {
                 if (enpassantSide[1] == true) {
                     if (isValidEnpassant()) {
-                        pieces.remove(actualPasssant);
-                        actualPasssant = null;
                         return true;
                     }
                 }
             } else {
                 if (enpassantSide[0] == true) {
                     if (isValidEnpassant()) {
-                        pieces.remove(actualPasssant);
-                        actualPasssant = null;
                         return true;
                     }
                 }

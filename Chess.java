@@ -93,6 +93,7 @@ public class Chess {
 		}
 
 		boolean foundPiece = false; //Variable that tells if you found the piece of the FileRank pos or not.
+		Pawn isPassant = null;
 
 		for (ReturnPiece piece : curr.piecesOnBoard){
 			if (piece.pieceFile.name().equalsIgnoreCase(source.substring(0, 1)) &&
@@ -109,6 +110,7 @@ public class Chess {
 				if(piece.pieceType == ReturnPiece.PieceType.WP || piece.pieceType == ReturnPiece.PieceType.BP){
 					//Create a Pawn object
 					Pawn pawn = new Pawn(source, piece.pieceType.name().substring(0, 1), enpassantSide);
+					isPassant = pawn;
 					pawn.setActualPiece(piece);
 
 					//Reset enpassantAbility for current Player to be false
@@ -186,6 +188,12 @@ public class Chess {
 					if (pieceAtDestination!= null) initialPieces.add(pieceAtDestination);
 					curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
 					return curr;
+				}
+
+				//As long as enpassant doesn't put your own king in check, just delete the pawn that is enpassanted.
+				if(Pawn.getActualPasssant() != null && isPassant != null && isPassant.isValidEnpassant()){
+					initialPieces.remove(Pawn.getActualPasssant());
+					Pawn.setActualPasssant(null);
 				}
 
 				//checking if opponent king is in check once current move is made, so CHECK message can be displayed

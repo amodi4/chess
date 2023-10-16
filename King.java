@@ -56,9 +56,10 @@ public class King extends Piece {
              return true;
         }
     } else if (Math.abs(newFile - this.file) == 2 && newRank == this.rank && this.movesMade == 0){ //If king moves two to the left or right, possible castling move
+        if(Chess.isOwnKingInCheck(pieces)) return false; //Can't do castling if your own king is in check.
         int rightOrLeft = (newFile > this.file) ? 1 : -1; //1 to move right, -1 to move left
         ReturnPiece.PieceFile fileOfRook = ReturnPiece.PieceFile.a; //File of the rook if move left
-        ReturnPiece.PieceFile fileTargetDest = ReturnPiece.PieceFile.c;
+        ReturnPiece.PieceFile fileTargetDest = ReturnPiece.PieceFile.c; //File of king when castling is true.
         if(rightOrLeft == 1) { 
             fileOfRook = ReturnPiece.PieceFile.h; //If move right, look for rook at file h
             fileTargetDest = ReturnPiece.PieceFile.g;
@@ -73,9 +74,17 @@ public class King extends Piece {
             this.rp.pieceFile = fileTargetDest;
             if(fileOfRook.equals(ReturnPiece.PieceFile.a)) possibleRook.pieceFile = ReturnPiece.PieceFile.d;
             else {
-                //Swap rook and the king.
-                possibleRook.pieceFile = ReturnPiece.PieceFile.g;
-                this.rp.pieceFile = ReturnPiece.PieceFile.h;
+                //Make rook at file f
+                possibleRook.pieceFile = ReturnPiece.PieceFile.f;
+            }
+            //If your own king is in check
+            if(Chess.isOwnKingInCheck(pieces)){
+                //Revert the file of the king back to the original.
+                this.rp.pieceFile = ReturnPiece.PieceFile.e;
+                //If you moved left
+                if(rightOrLeft == -1) possibleRook.pieceFile = ReturnPiece.PieceFile.a;//File of rook is a
+                else possibleRook.pieceFile = ReturnPiece.PieceFile.h; //Else File of rook is h
+                return false;
             }
             this.isCastle = true; //You have castled.
             return true;

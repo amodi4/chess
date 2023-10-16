@@ -3,6 +3,8 @@ package chess;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import chess.ReturnPiece.PieceType;
+
 class ReturnPiece {
 	static enum PieceType {WP, WR, WN, WB, WQ, WK, 
 		            BP, BR, BN, BB, BK, BQ};
@@ -79,7 +81,8 @@ public class Chess {
 		}
 		//Finding out if player wants to promote a pawn
 		String promotionPiece = "";
-		if (moveParts.length == 3 && !moveParts[2].equals("draw?")) promotionPiece = moveParts[2];
+		if ((moveParts.length == 3 || moveParts.length == 4) && !moveParts[2].equals("draw?")) promotionPiece = moveParts[2];
+		boolean promotionHappened = false;
 		
 		String destination = moveParts[1];
 
@@ -118,6 +121,7 @@ public class Chess {
 					}
 					
 					if (pawn.isEligibleForPromotion(destination)){
+						promotionHappened = true;
 						//4 statements below determine what the piece will be converted to--> can be assumed as Queen if promotionPiece string is null
 						if (promotionPiece.equals("N")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
 						else if (promotionPiece.equals("R")) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
@@ -173,8 +177,12 @@ public class Chess {
 
 				//checking if own king is in check, if not then revert piece back to original spot, and potentially add back previously removed piece
 				if (isOwnKingInCheck(initialPieces)){
+					//must first move piece back to original spot
 					piece.pieceFile = ReturnPiece.PieceFile.valueOf(source.substring(0, 1));
 					piece.pieceRank = Integer.parseInt(source.substring(1));
+					//checks to see if promotion happened, and if it did then must set piece type back to original type
+					if (promotionHappened) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WP : ReturnPiece.PieceType.BP;
+					//if a piece was killed, have to add that back as well
 					if (pieceAtDestination!= null) initialPieces.add(pieceAtDestination);
 					curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
 					return curr;
@@ -195,15 +203,19 @@ public class Chess {
 			return curr;
 		}
 
-		//If there are three tokens in the array, then the third token has to be a draw? message after playing the move.
+		//If there are three or four tokens in the array, then check if the third/fourth token is a draw? message after playing the move.
 			//Just return the ReturnPlay object containing draw message, and the autograder will take care of that.
-		if(moveParts.length == 3){
-			if (moveParts[2].equals("draw?")) curr.message = ReturnPlay.Message.DRAW;
-		} else{
-			//Alternate the player for the next move (Only executes this is the move is valid)
-			if (currentPlayer == Player.white) currentPlayer = Player.black;
-			else currentPlayer = Player.white;
-		}
+		if((moveParts.length == 3 || moveParts.length == 4)){
+			if (moveParts[2].equals("draw?") || (moveParts.length == 4 && moveParts[3].equals("draw?"))) {
+				curr.message = ReturnPlay.Message.DRAW;
+				return curr;
+			}
+		} 
+
+		//Alternate the player for the next move (Only executes this is the move is valid)
+		if (currentPlayer == Player.white) currentPlayer = Player.black;
+		else currentPlayer = Player.white;
+		
 
 		return curr;
 		

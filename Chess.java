@@ -513,6 +513,12 @@ public class Chess {
 		return false;
 	}
 
+	/**
+	 * Given the destination position, returns the piece in the Arraylist of pieces/the board at that position.
+	 * @param destination ,a FileRank position
+	 * @param pieces ,an arraylist of pieces used to find the piece at that destination from that arraylist
+	 * @return the pointer to the piece you found or null if you didn't find the piece
+	*/
 	public static ReturnPiece getPieceAtSquare(String destination, ArrayList<ReturnPiece> pieces){
 		for (ReturnPiece piece : pieces){
 			if (piece.pieceFile.name().equalsIgnoreCase(destination.substring(0, 1)) &&

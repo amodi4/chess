@@ -3,8 +3,6 @@ package chess;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import chess.ReturnPiece.PieceType;
-
 class ReturnPiece {
 	static enum PieceType {WP, WR, WN, WB, WQ, WK, 
 		            BP, BR, BN, BB, BK, BQ};

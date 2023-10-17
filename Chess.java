@@ -1,3 +1,8 @@
+/*
+ * Names:
+ * Nikhil Munagala and Aarav Modi
+ */
+
 package chess;
 
 import java.util.ArrayList;

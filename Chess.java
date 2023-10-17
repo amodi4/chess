@@ -173,8 +173,20 @@ public class Chess {
 				//Update the piece's position to the destination square 
 				piece.pieceFile = ReturnPiece.PieceFile.valueOf(destination.charAt(0) + "");
 				piece.pieceRank = Integer.parseInt(destination.charAt(1) + "");
-				
 
+				ReturnPiece passantSaved = null; //Used to rference to the actual passant to delete in the arraylist.
+				//As long as enpassant doesn't put your own king in check, just delete the pawn that is enpassanted.
+				if(Pawn.getActualPasssant() != null && isPassant != null && isPassant.isValidEnpassant()){
+					for(ReturnPiece piecee: initialPieces){ //Can't delete from the arraylist immediately because it is 
+						if(piecee == Pawn.getActualPasssant()){
+							passantSaved = piecee;
+							break;
+						}
+					}
+					initialPieces.remove(passantSaved);
+					Pawn.setActualPasssant(null);
+				}
+				
 				//checking if own king is in check, if not then revert piece back to original spot, and potentially add back previously removed piece
 				if (isOwnKingInCheck(initialPieces)){
 					//must first move piece back to original spot
@@ -183,7 +195,11 @@ public class Chess {
 					//checks to see if promotion happened, and if it did then must set piece type back to original type
 					if (promotionHappened) piece.pieceType = (playerTurnMap.get(currentPlayer).equals("W")) ? ReturnPiece.PieceType.WP : ReturnPiece.PieceType.BP;
 					//if a piece was killed, have to add that back as well
-					if (pieceAtDestination!= null) initialPieces.add(pieceAtDestination);
+					if (pieceAtDestination != null) initialPieces.add(pieceAtDestination);
+					if(passantSaved != null){ //If the passantedPiece isn't null, add it back to the board.
+						initialPieces.add(passantSaved);
+						Pawn.setActualPasssant(passantSaved);
+					}
 					curr.message = ReturnPlay.Message.ILLEGAL_MOVE;
 					return curr;
 				}
